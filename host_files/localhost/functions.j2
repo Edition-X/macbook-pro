@@ -1,0 +1,184 @@
+  local environments=(
+    "advr|731795558388|eu-west-2|andover-prd"
+    "prd-aon|998170215462|ap-northeast-1|aeon-prd"
+    "rte-aon|575918404399|ap-northeast-1|aeon-rte"
+    "dev-atm|725778237416|us-east-1|atmosphere-dev"
+    "prd-auc|240606470790|eu-west-3|auchan-prd"
+    "rte-auc|521391823245|eu-west-3|auchan-rte"
+    "prd-auro|204934935202|us-west-2|aurora-prd"
+    "prd-avon|429175155279|eu-west-2|avonmouth-prd"
+    "prd-bctr|609113204935|eu-west-2|bicester-prd"
+    "prd-bpe|781469534404|eu-west-1|bonpreu-prd"
+    "prd-brna|088260683002|eu-north-1|brunna-prd"
+    "prd-cas|777049360622|eu-west-1|casino-prd"
+    "rte-cas|822558886984|eu-west-1|casino-rte"
+    "rte-co2|584393562175|ap-southeast-2|coles2-rte"
+    "prd-col|943389849678|ap-southeast-2|coles-prd"
+    "rte-col|565932836965|ap-southeast-2|coles-rte"
+    "prd-cymes|400144580646|eu-west-1|cymes-prd"
+    "sit-cymes|274670120741|eu-west-1|cymes-sit"
+    "prd-erth|480883039192|eu-west-2|erith-prd"
+    "prd-fdrk|691227885509|us-east-1|frederick-prd"
+    "prd-flry|325743169833|eu-west-3|fleury-prd"
+    "prd-ftpk|505823647966|us-east-1|forestpark-prd"
+    "sit-ful|852819317038|eu-west-1|fulfilment-sit"
+    "prd-grv|806363871476|us-east-2|groveland-prd"
+    "prd-hnda|059816498261|ap-northeast-1|honda-prd"
+    "prd-huns|761405859081|eu-west-2|hunslet-prd"
+    "prd-ica|937774836356|eu-west-1|ica-prd"
+    "prd-ikea|407352343208|eu-west-1|ikea-prd"
+    "prd-mnro|725044766300|us-east-2|monroe-prd"
+    "prd-mol|448387986128|eu-west-1|mol-osp-prd"
+    "dev-ocd|288864158121|eu-west-1|ocado-dev"
+    "prd-ocd|603886671261|eu-west-1|ocado-prd"
+    "sit-ocd|176059559849|eu-west-1|ocado-sit"
+    "prd-olg|468382323038|eu-west-1|ocadologistics-prd"
+    "prd-orl|089884941660|eu-west-1|ocadoretail-prd"
+    "prd-pflt|858451555224|eu-west-2|purfleet-prd"
+    "prd-ptcl|328549657356|ca-central-1|pointeclaire-prd"
+    "prd-ptpe|277425291606|us-east-2|pleasantprairie-prd"
+    "prd-rckv|568599162061|us-west-2|rockyview-prd"
+    "prd-remm|187994411710|eu-west-2|remusmicro-prd"
+    "prd-rmls|268403557876|us-east-2|romulus-prd"
+    "prd-rob|558556817771|eu-west-2|robotics-prd"
+    "sit-rob|993803549727|eu-west-1|robotics-sit"
+    "prd-sob|311743721319|us-east-2|sobeys-prd"
+    "rte-sob|072778828304|us-east-2|sobeys-rte"
+    "rte-sob2|777522208794|us-east-2|sobeys2-rte"
+    "prd-tgna|827770374096|ap-southeast-2|truganina-prd"
+    "prd-tool|719670589029|eu-west-1|devtools-prd"
+    "sit-tool|920751347101|eu-west-1|devtools-sit"
+    "prd-untd|294788977197|eu-west-1|welwynunitd-prd"
+    "prd-vghn|973756797692|ca-central-1|vaughan-prd"
+    "prd-lytn|128639746179|eu-west-2|leyton-prd"
+    "prd-wrpk|731571255694|ap-southeast-2|wetherillpark-prd"
+    "prd-lctr|499932458504|us-east-2|lancaster-prd"
+    "dev-platform|222481756457|eu-west-1|platform-osp-dev"
+    "idt|671757240654|eu-west-1|idt-infra-prd"
+    "sit-xrt|346388331321|eu-west-1|xretail-sit"
+  )
+
+function aws_sso_env_dev() {
+  local environment_id="$1"
+  local session_name="dev"
+  local default_sso_start_url="https://d-93670b16a6.awsapps.com/start"
+  local default_sso_region="eu-west-1"
+
+  local found_env=""
+
+  for env in "${environments[@]}"; do
+    local env_id="$(echo $env | cut -d '|' -f 1)"
+    if [[ "${env_id}" == "${environment_id}" ]]; then
+      found_env="${env}"
+      break
+    fi
+  done
+
+  if [[ -z "${found_env}" ]]; then
+    echo "Environment not found"
+    return 1
+  fi
+
+  local aws_account_id="$(echo $found_env | cut -d '|' -f 2)"
+  local region="$(echo $found_env | cut -d '|' -f 3)"
+  local profile="$(echo $found_env | cut -d '|' -f 4)"
+
+  echo "sso URL: ${default_sso_start_url}"
+  echo "sso region: ${default_sso_region}"
+
+  export AWS_PROFILE="${profile}-sso-access"
+  aws configure set region "${region}" --profile "${profile}-sso-access"
+  aws configure set sso_start_url "${default_sso_start_url}" --profile "${profile}-sso-access"
+  aws configure set sso_region "${default_sso_region}" --profile "${profile}-sso-access"
+  aws configure set sso_account_id "${aws_account_id}" --profile "${profile}-sso-access"
+  aws configure set sso_role_name "DeveloperAccess" --profile "${profile}-sso-access"
+
+  aws sso login --profile "${profile}-sso-access"
+}
+
+function aws_sso_env_sec() {
+  local environment_id="$1"
+  local session_name="dev"
+  local default_sso_start_url="https://d-93670b16a6.awsapps.com/start"
+  local default_sso_region="eu-west-1"
+
+  local found_env=""
+
+  for env in "${environments[@]}"; do
+    local env_id="$(echo $env | cut -d '|' -f 1)"
+    if [[ "${env_id}" == "${environment_id}" ]]; then
+      found_env="${env}"
+      break
+    fi
+  done
+
+  if [[ -z "${found_env}" ]]; then
+    echo "Environment not found"
+    return 1
+  fi
+
+  local aws_account_id="$(echo $found_env | cut -d '|' -f 2)"
+  local region="$(echo $found_env | cut -d '|' -f 3)"
+  local profile="$(echo $found_env | cut -d '|' -f 4)"
+
+  echo "sso URL: ${default_sso_start_url}"
+  echo "sso region: ${default_sso_region}"
+
+  export AWS_PROFILE="${profile}-sso-access"
+  aws configure set region "${region}" --profile "${profile}-sso-access"
+  aws configure set sso_start_url "${default_sso_start_url}" --profile "${profile}-sso-access"
+  aws configure set sso_region "${default_sso_region}" --profile "${profile}-sso-access"
+  aws configure set sso_account_id "${aws_account_id}" --profile "${profile}-sso-access"
+  aws configure set sso_role_name "DevOpenSearchApiAccess" --profile "${profile}-sso-access"
+
+  aws sso login --profile "${profile}-sso-access"
+}
+
+function aws_sso_env() {
+  local environment_id="$1"
+  local session_name="dan"
+  local default_sso_start_url="https://d-93670b16a6.awsapps.com/start"
+  local default_sso_region="eu-west-1"
+
+  local found_env=""
+
+  for env in "${environments[@]}"; do
+    local env_id="$(echo $env | cut -d '|' -f 1)"
+    if [[ "${env_id}" == "${environment_id}" ]]; then
+      found_env="${env}"
+      break
+    fi
+  done
+
+  if [[ -z "${found_env}" ]]; then
+    echo "Environment not found"
+    return 1
+  fi
+
+  local aws_account_id="$(echo $found_env | cut -d '|' -f 2)"
+  local region="$(echo $found_env | cut -d '|' -f 3)"
+  local profile="$(echo $found_env | cut -d '|' -f 4)"
+
+  local role_name="${profile}-gitlab-runner-idt"
+
+  echo "sso URL: ${default_sso_start_url}"
+  echo "sso region: ${default_sso_region}"
+
+  export AWS_PROFILE="${profile}-sso-access"
+  aws configure set region "${region}" --profile "${profile}-sso-access"
+  aws configure set sso_start_url "${default_sso_start_url}" --profile "${profile}-sso-access"
+  aws configure set sso_region "${default_sso_region}" --profile "${profile}-sso-access"
+  aws configure set sso_account_id "${aws_account_id}" --profile "${profile}-sso-access"
+  if [[ "${profile}" == "idt-infra-prd" ]]; then
+    aws configure set sso_role_name "IDTAdminAccess" --profile "${profile}-sso-access"
+    local skip_role_assumption=true
+  else
+    aws configure set sso_role_name "IDTAccess" --profile "${profile}-sso-access"
+  fi
+
+  aws sso login --profile "${profile}-sso-access"
+  if [[ -z "${skip_role_assumption}" ]]; then
+    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $(aws sts assume-role --role-arn arn:aws:iam::${aws_account_id}:role/${role_name} --role-session-name "${session_name}" --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output text --profile "${profile}-sso-access"))
+  fi
+}
+

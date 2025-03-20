@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+Host *
+  ForwardAgent yes
+
+Host jump
+  User {{ unix_username | default(ansible_user_id) }}
+  RequestTTY force

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <servers>
+        <server>
+            <id>atm-nexus-release</id>
+            <username>{{ nexus_atm_username }}</username>
+            <password>{{ nexus_atm_password }}</password>
+        </server>
+        <server>
+            <id>atm-nexus-snapshot</id>
+            <username>{{ nexus_atm_username }}</username>
+            <password>{{ nexus_atm_password }}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>nexus</id>
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>atm-nexus-release</id>
+                    <name>atm-nexus-release</name>
+                    <url>https://nexus.atm.osp.tech/repository/maven-release-group/</url>
+                </repository>
+                <repository>
+                    <snapshots />
+                    <id>atm-nexus-snapshot</id>
+                    <name>atm-nexus-snapshot</name>
+                    <url>https://nexus.atm.osp.tech/repository/maven-snapshot-group/</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>nexus</activeProfile>
+    </activeProfiles>
+</settings>

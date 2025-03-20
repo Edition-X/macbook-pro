@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+Host github.com
+  AddKeysToAgent yes
+  User Edition-X
+  IdentityFile ~/.ssh/id_ed25519
+
+Host *
+  ForwardAgent yes
+
+Host jump
+  User {{ unix_username | default(ansible_user_id) }}
+  RequestTTY force
