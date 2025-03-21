@@ -1,9 +1,0 @@
-# {{ ansible_managed }}
-
-machine nexus.ocado.tech
-login {{ unix_username | default(ansible_user_id) }}
-password {{ unix_password | default("¯\_(ツ)_/¯") }}
-
-machine nexus.atm.osp.tech
-login {{ nexus_atm_username }}
-password {{ nexus_atm_password }}
