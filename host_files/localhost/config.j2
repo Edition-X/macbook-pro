@@ -4,9 +4,22 @@ Host github.com
   User Edition-X
   IdentityFile ~/.ssh/id_ed25519
 
-Host *
-  ForwardAgent yes
+# Sunrising Robotics short aliases
+Host mars-* moon-* r02b*-orin r02b*-ipc r02b*-rtc r021-bg-*-ipc
+  HostName %h.sunrising.io
+  User robot
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+
+# Sunrising Robotics fleet (FQDNs)
+Host *.sunrising.io
+  User robot
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
 
 Host jump
   User {{ unix_username | default(ansible_user_id) }}
   RequestTTY force
+
+Host *
+  ForwardAgent yes
